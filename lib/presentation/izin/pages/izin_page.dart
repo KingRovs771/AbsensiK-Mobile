@@ -1,8 +1,8 @@
-import 'package:absensi_alma/core/config/sizes/app_size.dart';
 import 'package:absensi_alma/core/config/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class IzinPage extends StatefulWidget {
+  @override
   _IzinPageState createState() => _IzinPageState();
 }
 

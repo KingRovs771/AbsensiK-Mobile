@@ -8,4 +8,7 @@ class AppColors {
   static const backgroundColor = Color(0xffffffff);
   static const activeNavbar = Color(0xfffd0000);
   static const fontColor = Color(0xffffffff);
+  static const fontColorBlack = Color(0xff000000);
+  static const fontColorV = Color(0xff727078);
+  static const borderColor = Color(0xffefecf3);
 }
