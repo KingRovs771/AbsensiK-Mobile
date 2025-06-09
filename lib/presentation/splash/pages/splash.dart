@@ -1,5 +1,6 @@
 import 'package:absensi_alma/common/helper/bottomNavigation/bottom_bar.dart';
 import 'package:absensi_alma/common/helper/navigation/app_navigation.dart';
+import 'package:absensi_alma/core/config/assets/app_images.dart';
 import 'package:absensi_alma/core/config/theme/app_colors.dart';
 import 'package:absensi_alma/presentation/auth/pages/signin.dart';
 import 'package:flutter/material.dart';
@@ -24,23 +25,33 @@ class SplashPage extends StatelessWidget {
             AppNavigator.pushReplacement(context, BottomBar());
           }
         },
-        child: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(color: AppColors.primaryColor),
+        child: LayoutBuilder(builder: (context, constraints) {
+          double screenWidth = constraints.maxWidth;
+          double screenHeight = constraints.maxHeight;
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppImages.bgSplash),
+                fit: BoxFit.cover,
+              ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                    const Color(0xff1A1B20).withOpacity(0),
-                    const Color(0xff1A1B20)
-                  ])),
-            )
-          ],
-        ),
+            child: Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Column(
+                      children: [
+                        Image(image: AssetImage(AppImages.logoApp)),
+                        Text('asdasd'),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

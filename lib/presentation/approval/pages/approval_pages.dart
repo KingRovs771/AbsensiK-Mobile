@@ -12,116 +12,158 @@ class _ApprovalPagesState extends State<ApprovalPages> {
   List<Map<String, String>> request = [
     {
       'type': 'Attendance Correction',
-      'date': '27 Jul',
+      'date': '27 Januari',
       'status': 'Awaiting',
-      'for': '26 Jul 2022'
+      'Time': '26 Jul 2022'
     },
     {
       'type': 'Attendance Correction',
-      'date': '27 Jul',
+      'date': '27 Februari',
       'status': 'Awaiting',
-      'for': '26 Jul 2022'
+      'Time': '26 Jul 2022'
     },
     {
       'type': 'Attendance Correction',
-      'date': '27 Jul',
+      'date': '27 Maret',
       'status': 'Awaiting',
-      'for': '26 Jul 2022'
+      'Time': '26 Jul 2022'
     },
     {
       'type': 'Wedding Leave',
-      'date': '27 Jul',
+      'date': '27 April',
       'status': 'Awaiting',
-      'for': '29 - 31 Aug 2022'
+      'Time': ' 2022'
     },
     {
       'type': 'Business Trip <7 Days',
-      'date': '27 Jul',
+      'date': '27 Mei',
       'status': 'Awaiting',
-      'for': '29 - 31 Aug 2022'
+      'Time': '29 - 31 Aug 2022'
     },
     {
       'type': 'Attendance Correction',
-      'date': '21 Jul',
+      'date': '21 Juni',
       'status': 'Approved',
-      'for': '20 Jul 2022'
+      'Time': '20 Jul 2022'
     },
     {
       'type': 'Annual Leave',
-      'date': '19 Jul',
+      'date': '19 Juli',
       'status': 'Rejected',
-      'for': '20 Jul 2022'
+      'Time': '20 Jul 2022'
     },
     {
       'type': 'Annual Leave',
-      'date': '23 Jul',
+      'date': '23 Agustus',
       'status': 'Awaiting',
-      'for': '22 Jul 2022'
+      'Time': '22 Jul 2022'
     }
   ];
 
-  List<String> months = ['All', 'Jul', 'Aug'];
+  List<String> months = [
+    'All',
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember'
+  ];
   List<String> statuses = ['All', 'Awaiting', 'Approved', 'Rejected'];
 
   @override
   Widget build(BuildContext context) {
+    double WidthSize = MediaQuery.sizeOf(context).width;
+    double HeightSize = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
       appBar: AppBar(
         foregroundColor: AppColors.fontColor,
         backgroundColor: AppColors.secondaryColor,
         title: Text(
-          'Halaman Approval ',
+          'History Absensi ',
           style: TextStyle(color: AppColors.fontColor),
         ),
       ),
       body: Column(
         children: [
-          Container(
-            padding: EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                    child: Card(
-                  color: AppColors.primaryColor,
-                  elevation: 4.0,
-                  child: DropdownButton<String>(
-                    alignment: Alignment.center,
-                    iconSize: 20,
-                    iconEnabledColor: AppColors.fontColor,
-                    value: _selectedMonth,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedMonth = newValue!;
-                      });
-                    },
-                    items: months.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                )),
-                SizedBox(width: 10),
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: _selectedStatus,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedStatus = newValue!;
-                      });
-                    },
-                    items:
-                        statuses.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+          Row(
+            children: [
+              Container(
+                margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+                padding: EdgeInsets.only(left: 9),
+                height: HeightSize * 0.05,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.borderColor),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-              ],
-            ),
+                child: DropdownButton<String>(
+                  value: _selectedMonth,
+                  dropdownColor: AppColors.fontColor,
+                  iconEnabledColor: AppColors.fontColorV,
+                  elevation: 8,
+                  underline: Container(
+                    height: 2,
+                    color: Colors.transparent,
+                  ),
+                  onChanged: (String? value) {
+                    // This is called when the user selects an item.
+                    setState(() {
+                      _selectedMonth = value!;
+                    });
+                  },
+                  items: months.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: TextStyle(color: AppColors.fontColorV),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Container(
+                padding: EdgeInsets.only(left: 9),
+                height: HeightSize * 0.05,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.borderColor),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedStatus,
+                  dropdownColor: AppColors.fontColor,
+                  iconEnabledColor: AppColors.fontColorV,
+                  elevation: 8,
+                  underline: Container(
+                    height: 2,
+                    color: Colors.transparent,
+                  ),
+                  onChanged: (String? value) {
+                    // This is called when the user selects an item.
+                    setState(() {
+                      _selectedStatus = value!;
+                    });
+                  },
+                  items: statuses.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value,
+                          style: TextStyle(color: AppColors.fontColorV)),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
           Expanded(
             child: ListView.builder(
@@ -139,7 +181,7 @@ class _ApprovalPagesState extends State<ApprovalPages> {
                         request[index]['type']!,
                         style: TextStyle(color: AppColors.fontColorBlack),
                       ),
-                      subtitle: Text('For: ${request[index]['for']}'),
+                      subtitle: Text('For: ${request[index]['date']}'),
                       trailing: Text(
                         request[index]['status']!,
                         style: TextStyle(

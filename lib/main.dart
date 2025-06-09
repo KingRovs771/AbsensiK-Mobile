@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         title: 'Absensi Karyawan PT Alma',
         theme: AppTheme.appTheme,
         home: const SplashPage(),
-      ),
+      ), 
     );
   }
 }
