@@ -21,6 +21,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await authRepository.login(event.username, event.password);
+      print("BLOC: Login Sukses! User diterima: ${user.fullName}, Role: ${user.role.nameRole}");
       emit(AuthAuthenticated(user: user));
     } catch (e) {
       // Di dunia nyata, Anda akan mem-parse error dari DioException

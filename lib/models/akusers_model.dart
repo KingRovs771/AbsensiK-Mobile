@@ -1,21 +1,23 @@
+import 'package:absensi_alma/models/AkRoles_Model.dart';
+
 import '../domain/Auth/entities/Ak_Users.dart';
 
-class AkusersModel extends AkUsers {
-  const AkusersModel(
+class AkUsersModel extends AkUsers {
+  const AkUsersModel(
       {required super.userUID,
       required super.email,
       required super.username,
       required super.fullName,
-      required super.roleId,
+      required super.role,
       required super.departmentsId});
 
-  factory AkusersModel.fromJson(Map<String, dynamic> json) {
-    return AkusersModel(
+  factory AkUsersModel.fromJson(Map<String, dynamic> json) {
+    return AkUsersModel(
       userUID: json['user_uid'],
       email: json['email'],
       username: json['username'],
       fullName: json['full_name'],
-      roleId: json['role_id'],
+      role: AkRolesModel.fromJson(json['role']),
       departmentsId: json['departments_id'],
     );
   }
@@ -26,7 +28,7 @@ class AkusersModel extends AkUsers {
       'email': email,
       'username': username,
       'full_name': fullName,
-      'role_id': roleId,
+      'role_id': role,
       'departments_id': departmentsId
     };
   }

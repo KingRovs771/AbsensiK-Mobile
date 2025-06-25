@@ -24,9 +24,17 @@ class MyApp extends StatelessWidget {
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<Dio>(create: (context) => Dio()),
         RepositoryProvider<FlutterSecureStorage>(
           create: (context) => const FlutterSecureStorage(),
+        ),
+        RepositoryProvider<Dio>(
+          create: (context) {
+            final dio = Dio();
+            // Tambahkan interceptor ke Dio
+            dio.interceptors.add(AuthInterceptor(
+                secureStorage: context.read<FlutterSecureStorage>()));
+            return dio;
+          },
         ),
         RepositoryProvider<AuthRemoteDataSource>(
           create: (context) => AuthRemoteDataSourceImpl(
@@ -38,15 +46,6 @@ class MyApp extends StatelessWidget {
             remoteDataSource: context.read<AuthRemoteDataSource>(),
             secureStorage: context.read<FlutterSecureStorage>(),
           ),
-        ),
-        RepositoryProvider<Dio>(
-          create: (context) {
-            final dio = Dio();
-            // Tambahkan interceptor ke Dio
-            dio.interceptors.add(AuthInterceptor(
-                secureStorage: context.read<FlutterSecureStorage>()));
-            return dio;
-          },
         ),
       ],
       child: MultiBlocProvider(

@@ -13,8 +13,9 @@ class SplashCubit extends Cubit<SplashState> {
     await Future.delayed(const Duration(seconds: 2));
 
     try {
-      final token = await secureStorage.read(key: 'auth_token');
+      final token = await secureStorage.read(key: 'secretyaa');
 
+    print("SPLASH CUBIT: Token yang terbaca saat aplikasi mulai: $token");
       if (token != null && token.isNotEmpty) {
         emit(Authenticated());
       } else {

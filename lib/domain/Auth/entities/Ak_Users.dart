@@ -1,3 +1,4 @@
+import 'package:absensi_alma/domain/Auth/entities/Ak_Roles.dart';
 import 'package:equatable/equatable.dart';
 
 class AkUsers extends Equatable {
@@ -5,7 +6,7 @@ class AkUsers extends Equatable {
   final String email;
   final String username;
   final String fullName;
-  final String roleId;
+  final AkRoles role;
   final String departmentsId;
 
   const AkUsers({
@@ -13,11 +14,11 @@ class AkUsers extends Equatable {
     required this.email,
     required this.username,
     required this.fullName,
-    required this.roleId,
+    required this.role,
     required this.departmentsId,
   });
 
   @override
   List<Object?> get props =>
-      [userUID, email, username, fullName, roleId, departmentsId];
+      [userUID, email, username, fullName, role, departmentsId];
 }

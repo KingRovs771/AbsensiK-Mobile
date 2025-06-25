@@ -1,14 +1,17 @@
 import 'package:dio/dio.dart';
-import '../../models/akusers_model.dart';
+import '../../models/AkUsers_Model.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<(AkusersModel, String)> login(String email, String password);
+  Future<String> login(String email, String password);
   Future<void> logout(String token);
+
+  Future<AkUsersModel> getProfile();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final Dio client;
-  final String baseUrl = "http://localhost:8080/v1";
+  final String baseUrl = "http://192.168.151.82:8080/v1";
 
   AuthRemoteDataSourceImpl({required this.client});
 
@@ -39,43 +42,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<(AkusersModel, String)> login(String username, String password) async {
+  Future<String> login(String username, String password) async {
     final String endpoint = "$baseUrl/auth/login";
-
-    final Map<String, dynamic> body = {
-      'username': username,
-      'password': password,
-    };
-
-    print(
-        "DATASOURCE: Mengirim permintaan POST ke $endpoint dengan body: $body");
     try {
-      final response = await client.post(endpoint, data: body);
-      if (response.statusCode == 200) {
-        final responseData = response.data;
+      final response = await client.post(endpoint, data: {
+        'username': username,
+        'password': password,
+      });
 
-        print("DATASOURCE: Menerima respons sukses: $responseData");
+      return response.data['Token'];
+    } on DioException {
+      rethrow;
+    }
+  }
 
-        final token = responseData['token'] as String;
-        final userMap = {
-          "user_id": 0,
-          "full_name": responseData['full_name'] ?? 'Nama Tidak Ada',
-          "username": username,
-          "role_id": "N/A",
-          "departments_id": "N/A",
-          "dailyrate": 0,
-        };
+  @override
+  Future<AkUsersModel> getProfile() async {
+    // Sesuaikan dengan endpoint profile Anda, bisa GET atau POST
+    final String endpoint = "$baseUrl/auth/getInfo";
 
-        final user = AkusersModel.fromJson(userMap);
-        return (user, token);
-      } else {
-        throw DioException(
-            requestOptions: RequestOptions(path: endpoint),
-            message: 'Server Mengembalikan Status ${response.statusCode}',
-            response: response);
-      }
-    } catch (e) {
-      print("DATASOURCE: Terjadi error tak terduga saat login: $e");
+    try {
+      final response = await client.get(endpoint);
+
+      return AkUsersModel.fromJson(response.data);
+    } on DioException {
       rethrow;
     }
   }
