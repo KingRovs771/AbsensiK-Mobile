@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 
 class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
   @override
   State<SignInPage> createState() => _SignInPageState();
 }
@@ -16,7 +17,6 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
-    // 2. Jangan lupa dispose controller untuk mencegah memory leak
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -41,7 +41,8 @@ class _SignInPageState extends State<SignInPage> {
           if (state is AuthAuthenticated) {
             // Jika login berhasil, pindah ke halaman utama dan hapus halaman login dari stack
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => HomePage()),
+              MaterialPageRoute(
+                  builder: (context) => HomePage(user: state.user)),
             );
           }
         },
@@ -72,8 +73,13 @@ class _SignInPageState extends State<SignInPage> {
                     return ElevatedButton(
                       // Menggunakan ElevatedButton sebagai contoh
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(300, 50),
-                      ),
+                          minimumSize:
+                              const Size(double.infinity, 50), // Lebar penuh
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: const Color(0xff558ef8),
+                          foregroundColor: Colors.white),
                       onPressed: () {
                         // 5. Saat tombol ditekan, kirim event ke AuthBloc
                         context.read<AuthBloc>().add(

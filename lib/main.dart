@@ -1,19 +1,17 @@
-import 'package:absensi_alma/auth_interceptor.dart';
+import 'package:absensi_alma/common/helper/bottomNavigation/bottom_bar.dart';
 import 'package:absensi_alma/core/config/theme/app_theme.dart';
-import 'package:absensi_alma/data/datasources/auth_remote_datasource.dart';
-import 'package:absensi_alma/domain/Auth/repositories/AuthRepository.dart';
-import 'package:absensi_alma/domain/Auth/repositories/auth_repository_impl.dart';
 import 'package:absensi_alma/presentation/auth/bloc/auth_bloc.dart';
-import 'package:absensi_alma/presentation/splash/bloc/splash_cubit.dart';
+import 'package:absensi_alma/presentation/auth/pages/signin.dart';
 import 'package:absensi_alma/presentation/splash/pages/splash.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'injection_container.dart' as di;
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await di.init();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,50 +20,42 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<FlutterSecureStorage>(
-          create: (context) => const FlutterSecureStorage(),
-        ),
-        RepositoryProvider<Dio>(
-          create: (context) {
-            final dio = Dio();
-            // Tambahkan interceptor ke Dio
-            dio.interceptors.add(AuthInterceptor(
-                secureStorage: context.read<FlutterSecureStorage>()));
-            return dio;
+    return BlocProvider(
+      create: (context) => di.sl<AuthBloc>()..add(AppStarted()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Absensi Karyawan PT Alma',
+        theme: AppTheme.appTheme,
+        home: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is AuthAuthenticated) {
+              return BottomBar(user: state.user);
+            }
+            if (state is AuthUnauthenticated || state is AuthFailure) {
+              return SignInPage();
+            }
+            return const SplashPage();
           },
         ),
-        RepositoryProvider<AuthRemoteDataSource>(
-          create: (context) => AuthRemoteDataSourceImpl(
-            client: context.read<Dio>(),
+      ),
+    );
+  }
+}
+
+class ErrorApp extends StatelessWidget {
+  final String error;
+  const ErrorApp({super.key, required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text("Gagal memulai aplikasi:\n\n$error",
+                textAlign: TextAlign.center),
           ),
-        ),
-        RepositoryProvider<AuthRepository>(
-          create: (context) => AuthRepositoryImpl(
-            remoteDataSource: context.read<AuthRemoteDataSource>(),
-            secureStorage: context.read<FlutterSecureStorage>(),
-          ),
-        ),
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => AuthBloc(
-              authRepository: context.read<AuthRepository>(),
-            ),
-          ),
-          BlocProvider(
-            create: (context) => SplashCubit(
-              secureStorage: context.read<FlutterSecureStorage>(),
-            ),
-          ),
-        ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Absensi Karyawan PT Alma',
-          theme: AppTheme.appTheme,
-          home: const SplashPage(),
         ),
       ),
     );

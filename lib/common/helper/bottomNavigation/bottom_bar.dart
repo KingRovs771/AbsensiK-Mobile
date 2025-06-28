@@ -1,23 +1,60 @@
 import 'package:absensi_alma/core/config/theme/app_colors.dart';
+import 'package:absensi_alma/domain/entities/user_entity.dart';
+import 'package:absensi_alma/injection_container.dart';
+import 'package:absensi_alma/presentation/auth/bloc/auth_bloc.dart';
+import 'package:absensi_alma/presentation/auth/pages/signin.dart';
 import 'package:absensi_alma/presentation/home/pages/home_page.dart';
 import 'package:absensi_alma/presentation/profile/pages/profile_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BottomBar extends StatefulWidget {
-  const BottomBar({super.key});
-
+class BottomBar extends StatelessWidget {
+  final UserEntity user;
+  const BottomBar({super.key, required this.user});
   @override
-  State<BottomBar> createState() => _BottomBarState();
+  Widget build(BuildContext context) {
+    // Menyediakan AuthBloc ke semua halaman di dalam BottomBar
+    return BlocProvider(
+      create: (context) => sl<AuthBloc>(),
+      child: BlocListener<AuthBloc, AuthState>(
+        // Listener untuk menangani navigasi saat logout
+        listener: (context, state) {
+          if (state is AuthUnauthenticated) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => SignInPage()),
+              (route) => false,
+            );
+          }
+        },
+        child: _BottomBarView(user: user),
+      ),
+    );
+  }
 }
 
-class _BottomBarState extends State<BottomBar> {
+class _BottomBarView extends StatefulWidget {
+  final UserEntity user;
+  const _BottomBarView({required this.user});
+  @override
+  State<_BottomBarView> createState() => _BottomBarViewState();
+}
+
+class _BottomBarViewState extends State<_BottomBarView> {
   int _selectedIndex = 0;
 
-  static List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    Text('asdasdads'),
-    ProfilePage(),
-  ];
+  late final List<Widget> _widgetOptions;
+
+  void initState() {
+    super.initState();
+
+    _widgetOptions = <Widget>[
+      HomePage(user: widget.user),
+      const Center(child: Text('Halaman Absensi (Placeholder)')),
+      ProfilePage(
+        user: widget.user,
+      ),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

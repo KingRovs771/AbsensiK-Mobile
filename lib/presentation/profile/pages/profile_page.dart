@@ -1,9 +1,12 @@
 import 'package:absensi_alma/core/config/assets/app_images.dart';
 import 'package:absensi_alma/core/config/theme/app_colors.dart';
+import 'package:absensi_alma/domain/entities/user_entity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
+  final UserEntity user;
+  const ProfilePage({super.key, required this.user});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +34,7 @@ class ProfilePage extends StatelessWidget {
           ),
           Center(
             child: Text(
-              'Nama Lengkap',
+              user.fullName.toString(),
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
@@ -40,7 +43,7 @@ class ProfilePage extends StatelessWidget {
           ),
           Center(
             child: Text(
-              'Marketing',
+              user.role.nameRole,
               style: TextStyle(
                 color: Colors.black,
               ),
@@ -53,17 +56,18 @@ class ProfilePage extends StatelessWidget {
             padding: EdgeInsets.all(16),
             child: Column(
               children: <Widget>[
-                itemProfile('Name', 'Ahad hasmi', CupertinoIcons.person),
+                itemProfile(
+                    'Name', user.fullName.toString(), CupertinoIcons.person),
+                SizedBox(
+                  height: 8,
+                ),
+                itemProfile('Divisi', user.role.nameRole,
+                    CupertinoIcons.building_2_fill),
                 SizedBox(
                   height: 8,
                 ),
                 itemProfile(
-                    'Divisi', 'Marketing', CupertinoIcons.building_2_fill),
-                SizedBox(
-                  height: 8,
-                ),
-                itemProfile(
-                    'Telpon', '+62 821 67489 020', CupertinoIcons.phone),
+                    'Telpon', user.fullName.toString(), CupertinoIcons.phone),
                 SizedBox(
                   height: 8,
                 ),
@@ -78,7 +82,7 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-itemProfile(String title, String subtitle, IconData iconData) {
+Container itemProfile(String title, String subtitle, IconData iconData) {
   return Container(
     decoration: BoxDecoration(
       color: Colors.white,

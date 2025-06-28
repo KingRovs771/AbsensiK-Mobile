@@ -1,7 +1,5 @@
-import 'package:equatable/equatable.dart';
+part of 'splash_cubit.dart';
 
-// Kelas dasar abstrak untuk semua state splash
-// Menggunakan Equatable agar mudah membandingkan state jika diperlukan
 abstract class SplashState extends Equatable {
   const SplashState();
 
@@ -9,8 +7,15 @@ abstract class SplashState extends Equatable {
   List<Object> get props => [];
 }
 
-class DisplaySplash extends SplashState {}
+class SplashInitial extends SplashState {}
 
-class Authenticated extends SplashState {}
+class SplashAuthenticated extends SplashState {
+  final UserEntity user;
 
-class UnAuthenticated extends SplashState {}
+  const SplashAuthenticated({required this.user});
+
+  @override
+  List<Object> get props => [user];
+}
+
+class SplashUnauthenticated extends SplashState {}

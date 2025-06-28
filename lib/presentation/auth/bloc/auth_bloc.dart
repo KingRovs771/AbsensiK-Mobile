@@ -1,47 +1,47 @@
+import 'package:absensi_alma/core/usecase/usecase.dart';
+import 'package:absensi_alma/domain/entities/user_entity.dart';
+import 'package:absensi_alma/domain/usecases/get_current_user.dart';
+import 'package:absensi_alma/domain/usecases/login_user.dart';
+import 'package:absensi_alma/domain/usecases/logout_user.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../../domain/Auth/entities/Ak_Users.dart';
-import '../../../domain/Auth/repositories/AuthRepository.dart'; // Impor repository
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepository authRepository;
+  final LoginUser loginUser;
+  final LogoutUser logoutUser;
+  final GetCurrentUser getCurrentUser;
 
-  AuthBloc({required this.authRepository}) : super(AuthInitial()) {
-    on<LoginButtonPressed>(_onLoginButtonPressed);
-    on<LogoutButtonPressed>(_onLogoutButtonPressed);
-  }
+  AuthBloc({
+    required this.loginUser,
+    required this.logoutUser,
+    required this.getCurrentUser,
+  }) : super(AuthInitial()) {
+    on<AppStarted>((event, emit) async {
+      await Future.delayed(const Duration(seconds: 2));
+      final failureOrUser = await getCurrentUser(NoParams());
+      failureOrUser.fold(
+        (failure) => emit(AuthUnauthenticated()),
+        (user) => emit(AuthAuthenticated(user: user)),
+      );
+    });
+    on<LoginButtonPressed>((event, emit) async {
+      emit(AuthLoading());
+      final failureOrUser = await loginUser(
+        LoginParams(username: event.username, password: event.password),
+      );
+      failureOrUser.fold(
+        (failure) => emit(AuthFailure(message: failure.message)),
+        (user) => emit(AuthAuthenticated(user: user)),
+      );
+    });
 
-  void _onLoginButtonPressed(
-    LoginButtonPressed event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    try {
-      final user = await authRepository.login(event.username, event.password);
-      print("BLOC: Login Sukses! User diterima: ${user.fullName}, Role: ${user.role.nameRole}");
-      emit(AuthAuthenticated(user: user));
-    } catch (e) {
-      // Di dunia nyata, Anda akan mem-parse error dari DioException
-      emit(const AuthFailure(
-          message: "Login Gagal. Periksa kembali email dan password."));
-    }
-  }
-
-  void _onLogoutButtonPressed(
-    LogoutButtonPressed event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    try {
-      await authRepository.logout();
+    on<LogoutButtonPressed>((event, emit) async {
+      emit(AuthLoading()); // Tampilkan loading saat proses logout
+      await logoutUser(NoParams());
       emit(AuthUnauthenticated());
-    } catch (e) {
-      // Meskipun logout gagal, paksa ke state unauthenticated
-      // agar pengguna bisa mencoba login lagi.
-      emit(AuthUnauthenticated());
-    }
+    });
   }
 }

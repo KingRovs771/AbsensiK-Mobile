@@ -1,72 +1,77 @@
-import 'package:dio/dio.dart';
-import '../../models/AkUsers_Model.dart';
-import 'package:jwt_decode/jwt_decode.dart';
+import 'dart:convert';
+
+import 'package:absensi_alma/core/error/exceptions.dart';
+import 'package:absensi_alma/data/models/AkUsers_Model.dart';
+import 'package:http/http.dart' as http;
 
 abstract class AuthRemoteDataSource {
-  Future<String> login(String email, String password);
+  Future<String> login(String username, String password);
+  Future<AkUsersModel> getUserProfile(String token);
   Future<void> logout(String token);
-
-  Future<AkUsersModel> getProfile();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final Dio client;
-  final String baseUrl = "http://192.168.151.82:8080/v1";
+  final http.Client client;
+  final String _baseUrl = "https://absensik-backend-production.up.railway.app";
 
   AuthRemoteDataSourceImpl({required this.client});
 
   @override
-  Future<void> logout(String token) async {
-    final String endpoint =
-        "$baseUrl/auth/logout"; // Sesuaikan dengan endpoint logout Anda
-
-    print("DATASOURCE: Mengirim permintaan POST ke $endpoint untuk logout.");
-
-    try {
-      // Lakukan pemanggilan API ke endpoint logout
-      // Biasanya, token dikirim melalui Header Authorization
-      await client.post(
-        endpoint,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token', // Sertakan token di header
-          },
-        ),
-      );
-      print("DATASOURCE: Logout di backend berhasil.");
-    } on DioException catch (e) {
-      print(
-          "DATASOURCE: Gagal logout di backend (diabaikan): ${e.response?.data ?? e.message}");
-      // Jangan lemparkan 'rethrow' agar proses logout di aplikasi tetap berjalan.
-    }
-  }
-
-  @override
   Future<String> login(String username, String password) async {
-    final String endpoint = "$baseUrl/auth/login";
-    try {
-      final response = await client.post(endpoint, data: {
-        'username': username,
-        'password': password,
-      });
+    final response = await client.post(
+      Uri.parse('$_baseUrl/v1/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'username': username, 'password': password}),
+    );
 
-      return response.data['Token'];
-    } on DioException {
-      rethrow;
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['Status'] == 'Success' &&
+          responseData['Token'] != null) {
+        return responseData['Token'];
+      } else {
+        throw ServerException(
+            message: responseData['Message'] ?? 'Login Gagal');
+      }
+    } else {
+      throw ServerException(message: 'Username atau Password Salah');
     }
   }
 
   @override
-  Future<AkUsersModel> getProfile() async {
-    // Sesuaikan dengan endpoint profile Anda, bisa GET atau POST
-    final String endpoint = "$baseUrl/auth/getInfo";
+  Future<AkUsersModel> getUserProfile(String token) async {
+    // PENTING: Ganti '/api/user/profile' dengan endpoint Anda yang sebenarnya
+    final response = await client.get(
+      Uri.parse('$_baseUrl/v1/auth/profile'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-    try {
-      final response = await client.get(endpoint);
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      // Asumsikan backend mengembalikan data user di dalam key 'data'
+      return AkUsersModel.fromJson(responseData['data']);
+    } else {
+      throw ServerException(message: 'Gagal mengambil data profil');
+    }
+  }
 
-      return AkUsersModel.fromJson(response.data);
-    } on DioException {
-      rethrow;
+  @override
+  Future<void> logout(String token) async {
+    final response = await client.post(
+      Uri.parse('$_baseUrl/v1/auth/logout'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      // Kita bisa mengabaikan error di sini, karena yang penting adalah
+      // token di client terhapus. Atau bisa juga log error-nya.
+      print("Error saat logout di server: ${response.body}");
     }
   }
 }
