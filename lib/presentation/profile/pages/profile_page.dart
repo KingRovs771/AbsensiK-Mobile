@@ -72,7 +72,7 @@ class ProfilePage extends StatelessWidget {
                   height: 8,
                 ),
                 itemProfile(
-                    'Alamat', 'Gading Serpong Blok M', CupertinoIcons.map),
+                    'Alamat', user.fullName.toString(), CupertinoIcons.map),
               ],
             ),
           ),

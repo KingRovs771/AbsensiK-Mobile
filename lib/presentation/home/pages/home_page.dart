@@ -1,6 +1,9 @@
 import 'package:absensi_alma/core/config/assets/app_images.dart';
 import 'package:absensi_alma/core/config/theme/app_colors.dart';
 import 'package:absensi_alma/domain/entities/user_entity.dart';
+import 'package:absensi_alma/domain/usecases/submit_permit.dart';
+import 'package:absensi_alma/injection_container.dart';
+import 'package:absensi_alma/presentation/izin/bloc/permit_bloc.dart';
 import 'package:absensi_alma/presentation/notifications/pages/notif_page.dart';
 import 'package:absensi_alma/presentation/payments/pages/payments_page.dart';
 import 'package:flutter/material.dart';
@@ -286,12 +289,123 @@ class HomePage extends StatelessWidget {
               padding: EdgeInsets.all(15),
               crossAxisCount: 4,
               children: [
-                _buildActionButton(
-                    'Izin', Icons.assignment, screenSize, IzinPage(), context),
-                _buildActionButton('Sakit', Icons.local_hospital, screenSize,
-                    SickPage(), context),
-                _buildActionButton('Cuti', Icons.beach_access, screenSize,
-                    CutiPage(), context),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: Card.outlined(
+                    color: Colors.white,
+                    shadowColor: Colors.black,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (pageContext) => BlocProvider(
+                              create: (_) => PermitBloc(
+                                  submitPermit: sl(),
+                                  authBloc: context.read<AuthBloc>()),
+                              // Navigasi ke IzinPage
+                              child: IzinPage(),
+                            ),
+                          ),
+                        );
+                      },
+                      splashColor: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.assignment,
+                                size: 38, color: Colors.lightBlue),
+                            Text('Izin',
+                                style: TextStyle(
+                                    fontSize: screenSize.width * 0.040,
+                                    color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: Card.outlined(
+                    color: Colors.white,
+                    shadowColor: Colors.black,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (pageContext) => BlocProvider(
+                              create: (_) => PermitBloc(
+                                  submitPermit: sl(),
+                                  authBloc: context.read<AuthBloc>()),
+                              // Navigasi ke IzinPage
+                              child: SickPage(),
+                            ),
+                          ),
+                        );
+                      },
+                      splashColor: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.local_hospital,
+                                size: 38, color: Colors.lightBlue),
+                            Text('Sakit',
+                                style: TextStyle(
+                                    fontSize: screenSize.width * 0.040,
+                                    color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: Card.outlined(
+                    color: Colors.white,
+                    shadowColor: Colors.black,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (pageContext) => BlocProvider(
+                              create: (_) => PermitBloc(
+                                  submitPermit: sl(),
+                                  authBloc: context.read<AuthBloc>()),
+                              // Navigasi ke IzinPage
+                              child: CutiPage(),
+                            ),
+                          ),
+                        );
+                      },
+                      splashColor: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.beach_access,
+                                size: 38, color: Colors.lightBlue),
+                            Text('Cuti',
+                                style: TextStyle(
+                                    fontSize: screenSize.width * 0.040,
+                                    color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 _buildActionButton('Approval', Icons.check_circle, screenSize,
                     ApprovalPages(), context),
                 _buildActionButton('Gaji', Icons.attach_money, screenSize,

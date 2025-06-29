@@ -1,22 +1,10 @@
-import 'dart:convert';
-
 import 'package:absensi_alma/core/error/exceptions.dart';
 import 'package:absensi_alma/core/error/failures.dart';
 import 'package:absensi_alma/data/datasources/auth_local_datasource.dart';
 import 'package:absensi_alma/data/datasources/auth_remote_datasource.dart';
-import 'package:absensi_alma/domain/entities/role_entity.dart';
 import 'package:absensi_alma/domain/entities/user_entity.dart';
 import 'package:absensi_alma/domain/repositories/AuthRepository.dart';
 import 'package:dartz/dartz.dart';
-
-Map<String, dynamic> _parseJwt(String token) {
-  final parts = token.split('.');
-  if (parts.length != 3) throw const FormatException('Invalid token');
-  final payload = parts[1];
-  final normalized = base64Url.normalize(payload);
-  final resp = utf8.decode(base64Url.decode(normalized));
-  return json.decode(resp) as Map<String, dynamic>;
-}
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;

@@ -1,0 +1,49 @@
+import 'package:absensi_alma/core/error/exceptions.dart';
+import 'package:absensi_alma/core/error/failures.dart';
+import 'package:absensi_alma/data/datasources/auth_local_datasource.dart';
+import 'package:absensi_alma/data/datasources/permit_remote_datasource.dart';
+import 'package:absensi_alma/domain/entities/permit_entity.dart';
+import 'package:absensi_alma/domain/repositories/PermitRepository.dart';
+import 'package:absensi_alma/domain/usecases/get_permit_history.dart';
+import 'package:absensi_alma/domain/usecases/submit_permit.dart';
+import 'package:dartz/dartz.dart';
+import 'package:intl/intl.dart';
+
+class PermitRepositoryImpl implements PermitRepository {
+  final PermitRemoteDataSource remoteDataSource;
+
+  PermitRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<Either<Failure, void>> submitPermit(PermitParams params) async {
+    try {
+      final formattedStartDate =
+          DateFormat('yyyy-MM-dd').format(params.startDate);
+      final formattedEndDate = DateFormat('yyyy-MM-dd').format(params.endDate);
+
+      await remoteDataSource.submitPermit(
+        userUID: params.userUID, // <-- GUNAKAN LANGSUNG DARI PARAMS
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        reason: params.reason,
+        permitType: params.permitType,
+        photo: params.photo,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PermitEntity>>> getPermitHistory(
+      GetPermitHistoryParams params) async {
+    try {
+      // PERUBAHAN DI SINI: Langsung memanggil data source dengan userUID
+      final result = await remoteDataSource.getPermitHistory(params.userUid);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    }
+  }
+}

@@ -1,66 +1,38 @@
-import 'package:absensi_alma/core/config/theme/app_colors.dart';
+import 'package:absensi_alma/domain/entities/permit_entity.dart';
+import 'package:absensi_alma/injection_container.dart';
+import 'package:absensi_alma/presentation/approval/bloc/approval_bloc.dart';
+import 'package:absensi_alma/presentation/auth/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
-class ApprovalPages extends StatefulWidget {
+class ApprovalPages extends StatelessWidget {
+  const ApprovalPages({super.key});
+
   @override
-  _ApprovalPagesState createState() => _ApprovalPagesState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => ApprovalBloc(
+        getPermitHistory: sl(),
+        authBloc: context.read<AuthBloc>(), // <-- Inject AuthBloc yang ada
+      )..add(FetchPermitHistoryRequested()),
+      child: const _ApprovalView(),
+    );
+  }
 }
 
-class _ApprovalPagesState extends State<ApprovalPages> {
+class _ApprovalView extends StatefulWidget {
+  const _ApprovalView();
+
+  @override
+  State<_ApprovalView> createState() => _ApprovalViewState();
+}
+
+class _ApprovalViewState extends State<_ApprovalView> {
   String _selectedMonth = 'All';
   String _selectedStatus = 'All';
-  List<Map<String, String>> request = [
-    {
-      'type': 'Attendance Correction',
-      'date': '27 Januari',
-      'status': 'Awaiting',
-      'Time': '26 Jul 2022'
-    },
-    {
-      'type': 'Attendance Correction',
-      'date': '27 Februari',
-      'status': 'Awaiting',
-      'Time': '26 Jul 2022'
-    },
-    {
-      'type': 'Attendance Correction',
-      'date': '27 Maret',
-      'status': 'Awaiting',
-      'Time': '26 Jul 2022'
-    },
-    {
-      'type': 'Wedding Leave',
-      'date': '27 April',
-      'status': 'Awaiting',
-      'Time': ' 2022'
-    },
-    {
-      'type': 'Business Trip <7 Days',
-      'date': '27 Mei',
-      'status': 'Awaiting',
-      'Time': '29 - 31 Aug 2022'
-    },
-    {
-      'type': 'Attendance Correction',
-      'date': '21 Juni',
-      'status': 'Approved',
-      'Time': '20 Jul 2022'
-    },
-    {
-      'type': 'Annual Leave',
-      'date': '19 Juli',
-      'status': 'Rejected',
-      'Time': '20 Jul 2022'
-    },
-    {
-      'type': 'Annual Leave',
-      'date': '23 Agustus',
-      'status': 'Awaiting',
-      'Time': '22 Jul 2022'
-    }
-  ];
 
-  List<String> months = [
+  final List<String> _months = [
     'All',
     'Januari',
     'Februari',
@@ -75,131 +47,126 @@ class _ApprovalPagesState extends State<ApprovalPages> {
     'November',
     'Desember'
   ];
-  List<String> statuses = ['All', 'Awaiting', 'Approved', 'Rejected'];
+  final List<String> _statuses = ['All', 'Pending', 'Approved', 'Rejected'];
+
+  List<PermitEntity> _filterPermits(List<PermitEntity> allPermits) {
+    return allPermits.where((permit) {
+      final permitDate = DateTime.parse(permit.startDate);
+      final permitMonth = DateFormat('MMMM', 'id_ID').format(permitDate);
+
+      final monthMatch =
+          _selectedMonth == 'All' || permitMonth == _selectedMonth;
+      final statusMatch =
+          _selectedStatus == 'All' || permit.status == _selectedStatus;
+
+      return monthMatch && statusMatch;
+    }).toList();
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Approved':
+        return Colors.green;
+      case 'Rejected':
+        return Colors.red;
+      case 'Pending':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    double WidthSize = MediaQuery.sizeOf(context).width;
-    double HeightSize = MediaQuery.sizeOf(context).height;
-
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: AppColors.fontColor,
-        backgroundColor: AppColors.secondaryColor,
-        title: Text(
-          'History Absensi ',
-          style: TextStyle(color: AppColors.fontColor),
-        ),
+        title: const Text('Riwayat Pengajuan'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
-          Row(
-            children: [
-              Container(
-                margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
-                padding: EdgeInsets.only(left: 9),
-                height: HeightSize * 0.05,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.borderColor),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: DropdownButton<String>(
-                  value: _selectedMonth,
-                  dropdownColor: AppColors.fontColor,
-                  iconEnabledColor: AppColors.fontColorV,
-                  elevation: 8,
-                  underline: Container(
-                    height: 2,
-                    color: Colors.transparent,
-                  ),
-                  onChanged: (String? value) {
-                    // This is called when the user selects an item.
-                    setState(() {
-                      _selectedMonth = value!;
-                    });
-                  },
-                  items: months.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        value,
-                        style: TextStyle(color: AppColors.fontColorV),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Container(
-                padding: EdgeInsets.only(left: 9),
-                height: HeightSize * 0.05,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.borderColor),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: DropdownButton<String>(
-                  value: _selectedStatus,
-                  dropdownColor: AppColors.fontColor,
-                  iconEnabledColor: AppColors.fontColorV,
-                  elevation: 8,
-                  underline: Container(
-                    height: 2,
-                    color: Colors.transparent,
-                  ),
-                  onChanged: (String? value) {
-                    // This is called when the user selects an item.
-                    setState(() {
-                      _selectedStatus = value!;
-                    });
-                  },
-                  items: statuses.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value,
-                          style: TextStyle(color: AppColors.fontColorV)),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
+          // Filter Section
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                    child: _buildDropdown(_months, _selectedMonth,
+                        (val) => setState(() => _selectedMonth = val!))),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: _buildDropdown(_statuses, _selectedStatus,
+                        (val) => setState(() => _selectedStatus = val!))),
+              ],
+            ),
           ),
+          // List Section
           Expanded(
-            child: ListView.builder(
-              itemCount: request.length,
-              itemBuilder: (context, index) {
-                if ((_selectedMonth == 'All' ||
-                        request[index]['date']!.contains(_selectedMonth)) &&
-                    (_selectedStatus == 'All' ||
-                        request[index]['status'] == _selectedStatus)) {
-                  return Card(
-                    elevation: 4.0,
-                    color: AppColors.fontColor,
-                    child: ListTile(
-                      title: Text(
-                        request[index]['type']!,
-                        style: TextStyle(color: AppColors.fontColorBlack),
-                      ),
-                      subtitle: Text('For: ${request[index]['date']}'),
-                      trailing: Text(
-                        request[index]['status']!,
-                        style: TextStyle(
-                            color: request[index]['status'] == 'Approved'
-                                ? Colors.green
-                                : request[index]['status'] == 'Rejected'
-                                    ? Colors.red
-                                    : Colors.orange),
-                      ),
-                    ),
-                  );
-                } else {
-                  return Container();
+            child: BlocBuilder<ApprovalBloc, ApprovalState>(
+              builder: (context, state) {
+                if (state is ApprovalLoading) {
+                  return const Center(child: CircularProgressIndicator());
                 }
+                if (state is ApprovalFailure) {
+                  return Center(
+                      child: Text('Gagal memuat data: ${state.message}'));
+                }
+                if (state is ApprovalLoaded) {
+                  final filteredList = _filterPermits(state.permits);
+                  if (filteredList.isEmpty) {
+                    return const Center(
+                        child: Text('Tidak ada data yang cocok.'));
+                  }
+                  return ListView.builder(
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) {
+                      final permit = filteredList[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        child: ListTile(
+                          leading:
+                              CircleAvatar(child: Text(permit.permitType[0])),
+                          title: Text(permit.permitType,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                              'Tanggal: ${permit.startDate} s/d ${permit.endDate}\nAlasan: ${permit.reason}'),
+                          trailing: Text(permit.status,
+                              style: TextStyle(
+                                  color: _getStatusColor(permit.status),
+                                  fontWeight: FontWeight.bold)),
+                          isThreeLine: true,
+                        ),
+                      );
+                    },
+                  );
+                }
+                return const Center(child: Text('Silakan pilih filter.'));
               },
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDropdown(
+      List<String> items, String value, ValueChanged<String?> onChanged) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(8)),
+      child: DropdownButton<String>(
+        value: value,
+        isExpanded: true,
+        underline: const SizedBox(),
+        onChanged: onChanged,
+        items: items.map<DropdownMenuItem<String>>((String val) {
+          return DropdownMenuItem<String>(value: val, child: Text(val));
+        }).toList(),
       ),
     );
   }
