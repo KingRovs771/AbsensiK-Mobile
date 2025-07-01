@@ -13,7 +13,7 @@ class GetPermitHistory
   @override
   Future<Either<Failure, List<PermitEntity>>> call(
       GetPermitHistoryParams params) async {
-    return await repository.getPermitHistory(params);
+    return await repository.getPermitHistory();
   }
 }
 

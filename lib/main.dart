@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:absensi_alma/common/helper/bottomNavigation/bottom_bar.dart';
 import 'package:absensi_alma/core/config/theme/app_theme.dart';
 import 'package:absensi_alma/presentation/auth/bloc/auth_bloc.dart';
@@ -28,12 +30,22 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.appTheme,
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
+            dev.log(
+                "Main BlocBuilder rebuilding with state: ${state.runtimeType}",
+                name: "NavigationCheck");
             if (state is AuthAuthenticated) {
+              dev.log("--> State is AuthAuthenticated. Building BottomBar...",
+                  name: "NavigationCheck");
               return BottomBar(user: state.user);
             }
             if (state is AuthUnauthenticated || state is AuthFailure) {
+              dev.log(
+                  "--> State is AuthUnauthenticated/Failure. Building SignInPage...",
+                  name: "NavigationCheck");
               return SignInPage();
             }
+            dev.log("--> State is Initial/Loading. Building SplashPage...",
+                name: "NavigationCheck");
             return const SplashPage();
           },
         ),

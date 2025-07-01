@@ -46,6 +46,7 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<PermitRepository>(() => PermitRepositoryImpl(
         remoteDataSource: sl(),
+        localDataSource: sl(),
       ));
 
   sl.registerFactory(() => SplashCubit(getCurrentUser: sl()));

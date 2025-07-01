@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:absensi_alma/core/config/theme/app_colors.dart';
 import 'package:absensi_alma/domain/entities/user_entity.dart';
 import 'package:absensi_alma/injection_container.dart';
@@ -13,7 +15,6 @@ class BottomBar extends StatelessWidget {
   const BottomBar({super.key, required this.user});
   @override
   Widget build(BuildContext context) {
-    // Menyediakan AuthBloc ke semua halaman di dalam BottomBar
     return BlocProvider(
       create: (context) => sl<AuthBloc>(),
       child: BlocListener<AuthBloc, AuthState>(
@@ -44,6 +45,7 @@ class _BottomBarViewState extends State<_BottomBarView> {
 
   late final List<Widget> _widgetOptions;
 
+  @override
   void initState() {
     super.initState();
 
@@ -64,6 +66,7 @@ class _BottomBarViewState extends State<_BottomBarView> {
 
   @override
   Widget build(BuildContext context) {
+    dev.log("Widget BottomBar sedang di-build.", name: "WidgetBuildCheck");
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

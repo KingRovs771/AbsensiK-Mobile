@@ -14,7 +14,7 @@ abstract class PermitRemoteDataSource {
     required String permitType,
     required File? photo,
   });
-  Future<List<PermitModel>> getPermitHistory(String userUID);
+  Future<List<PermitModel>> getPermitHistory(String token);
 }
 
 class PermitRemoteDataSourceImpl implements PermitRemoteDataSource {
@@ -66,14 +66,10 @@ class PermitRemoteDataSourceImpl implements PermitRemoteDataSource {
   }
 
   @override
-  Future<List<PermitModel>> getPermitHistory(String userUID) async {
-    // PERUBAHAN DI SINI: Mengirim userUID sebagai query parameter
-    final url = Uri.parse('$_baseUrl/v1/izin/getIzinByuserUID').replace(
-      queryParameters: {'user_uid': userUID},
-    );
-
-    // Tidak perlu lagi header Authorization
-    final response = await client.get(url);
+  Future<List<PermitModel>> getPermitHistory(String token) async {
+    final url = Uri.parse('$_baseUrl/v1/izin/getIzinByuserUID');
+    final response =
+        await client.get(url, headers: {'Authorization': 'Bearer $token'});
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body)['data'];

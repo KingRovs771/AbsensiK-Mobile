@@ -1,4 +1,3 @@
-import 'package:absensi_alma/core/usecase/usecase.dart';
 import 'package:absensi_alma/domain/entities/permit_entity.dart';
 import 'package:absensi_alma/domain/usecases/get_permit_history.dart';
 import 'package:absensi_alma/presentation/auth/bloc/auth_bloc.dart';

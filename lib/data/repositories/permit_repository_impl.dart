@@ -4,15 +4,16 @@ import 'package:absensi_alma/data/datasources/auth_local_datasource.dart';
 import 'package:absensi_alma/data/datasources/permit_remote_datasource.dart';
 import 'package:absensi_alma/domain/entities/permit_entity.dart';
 import 'package:absensi_alma/domain/repositories/PermitRepository.dart';
-import 'package:absensi_alma/domain/usecases/get_permit_history.dart';
 import 'package:absensi_alma/domain/usecases/submit_permit.dart';
 import 'package:dartz/dartz.dart';
 import 'package:intl/intl.dart';
 
 class PermitRepositoryImpl implements PermitRepository {
   final PermitRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
 
-  PermitRepositoryImpl({required this.remoteDataSource});
+  PermitRepositoryImpl(
+      {required this.remoteDataSource, required this.localDataSource});
 
   @override
   Future<Either<Failure, void>> submitPermit(PermitParams params) async {
@@ -36,14 +37,17 @@ class PermitRepositoryImpl implements PermitRepository {
   }
 
   @override
-  Future<Either<Failure, List<PermitEntity>>> getPermitHistory(
-      GetPermitHistoryParams params) async {
+  Future<Either<Failure, List<PermitEntity>>> getPermitHistory() async {
     try {
-      // PERUBAHAN DI SINI: Langsung memanggil data source dengan userUID
-      final result = await remoteDataSource.getPermitHistory(params.userUid);
+      // Ambil token dari penyimpanan lokal
+      final token = await localDataSource.getToken();
+      final result = await remoteDataSource.getPermitHistory(token);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
+    } on CacheException {
+      return Left(
+          CacheFailure(message: "Sesi tidak valid, silakan login ulang"));
     }
   }
 }
