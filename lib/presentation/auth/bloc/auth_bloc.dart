@@ -22,22 +22,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.getCurrentUser,
   }) : super(AuthInitial()) {
     on<AppStarted>((event, emit) async {
-      dev.log("AuthBloc: Event AppStarted diterima.", name: "StateFlow");
       emit(AuthLoading());
-      await Future.delayed(const Duration(seconds: 2));
-      final failureOrUser = await getCurrentUser(NoParams());
-      failureOrUser.fold(
-        (failure) {
-          dev.log("AuthBloc: Login -> Gagal. Emitting AuthFailure.",
-              name: "StateFlow");
-          emit(AuthUnauthenticated());
-        },
-        (user) {
-          dev.log("AuthBloc: Login -> Sukses. Emitting AuthAuthenticated.",
-              name: "StateFlow");
-          emit(AuthAuthenticated(user: user));
-        },
-      );
+      await Future.delayed(const Duration(seconds: 1));
+      try {
+        final failureOrUser = await getCurrentUser(NoParams());
+        failureOrUser.fold(
+          (failure) => emit(AuthUnauthenticated()),
+          (user) => emit(AuthAuthenticated(user: user)),
+        );
+      } catch (e) {
+        emit(const AuthFailure(message: 'Gagal memeriksa sesi.'));
+      }
     });
     on<LoginButtonPressed>((event, emit) async {
       emit(AuthLoading());

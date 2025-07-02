@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'package:absensi_alma/core/config/theme/app_colors.dart';
 import 'package:absensi_alma/domain/entities/user_entity.dart';
 import 'package:absensi_alma/injection_container.dart';
+import 'package:absensi_alma/presentation/attendaces/pages/attendaces_pages.dart';
 import 'package:absensi_alma/presentation/auth/bloc/auth_bloc.dart';
 import 'package:absensi_alma/presentation/auth/pages/signin.dart';
 import 'package:absensi_alma/presentation/home/pages/home_page.dart';
@@ -51,7 +52,7 @@ class _BottomBarViewState extends State<_BottomBarView> {
 
     _widgetOptions = <Widget>[
       HomePage(user: widget.user),
-      const Center(child: Text('Halaman Absensi (Placeholder)')),
+      AttendancePage(user: widget.user),
       ProfilePage(
         user: widget.user,
       ),
