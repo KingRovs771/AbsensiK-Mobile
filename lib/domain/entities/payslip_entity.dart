@@ -9,7 +9,7 @@ class PayslipItemEntity extends Equatable {
 }
 
 class PayslipEntity extends Equatable {
-  final String period; // e.g., "Juni 2025"
+  final String period;
   final List<PayslipItemEntity> earnings;
   final List<PayslipItemEntity> deductions;
   final double totalEarnings;

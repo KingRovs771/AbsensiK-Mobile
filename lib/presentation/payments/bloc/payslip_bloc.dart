@@ -1,4 +1,3 @@
-import 'package:absensi_alma/core/usecase/usecase.dart';
 import 'package:absensi_alma/domain/entities/payslip_entity.dart';
 import 'package:absensi_alma/domain/usecases/get_latest_payslip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +11,7 @@ class PayslipBloc extends Bloc<PayslipEvent, PayslipState> {
   PayslipBloc({required this.getLatestPayslip}) : super(PayslipInitial()) {
     on<FetchLatestPayslip>((event, emit) async {
       emit(PayslipLoading());
-      final result = await getLatestPayslip(event.userUid as NoParams?);
+      final result = await getLatestPayslip();
       result.fold(
         (failure) => emit(PayslipFailure(message: failure.message)),
         (payslip) => emit(PayslipLoaded(payslip: payslip)),

@@ -16,6 +16,7 @@ class PayslipRemoteDataSourceImpl implements PayslipRemoteDataSource {
 
   @override
   Future<PayslipModel> getLatestPayslip(String token) async {
+    // Endpoint ini sekarang dianggap "publik", tetapi memerlukan token di header
     final response = await client.get(
       Uri.parse('$_baseUrl/v1/salary/getLatestSalary'),
       headers: {'Authorization': 'Bearer $token'},
@@ -23,7 +24,9 @@ class PayslipRemoteDataSourceImpl implements PayslipRemoteDataSource {
     if (response.statusCode == 200) {
       return PayslipModel.fromJson(json.decode(response.body)['data']);
     } else {
-      throw ServerException(message: 'Gagal memuat data gaji');
+      final responseMap = json.decode(response.body);
+      throw ServerException(
+          message: responseMap['message'] ?? 'Gagal memuat data gaji');
     }
   }
 }
