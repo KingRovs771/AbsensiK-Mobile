@@ -1,11 +1,15 @@
 import 'package:absensi_alma/data/datasources/auth_local_datasource.dart';
 import 'package:absensi_alma/data/datasources/auth_remote_datasource.dart';
+import 'package:absensi_alma/data/datasources/payslip_remote_datasource.dart';
 import 'package:absensi_alma/data/datasources/permit_remote_datasource.dart';
 import 'package:absensi_alma/data/repositories/auth_repository_impl.dart';
+import 'package:absensi_alma/data/repositories/payslip_repository_impl.dart';
 import 'package:absensi_alma/data/repositories/permit_repository_impl.dart';
 import 'package:absensi_alma/domain/repositories/AuthRepository.dart';
+import 'package:absensi_alma/domain/repositories/PayslipRepository.dart';
 import 'package:absensi_alma/domain/repositories/PermitRepository.dart';
 import 'package:absensi_alma/domain/usecases/get_current_user.dart';
+import 'package:absensi_alma/domain/usecases/get_latest_payslip.dart';
 import 'package:absensi_alma/domain/usecases/get_permit_history.dart';
 import 'package:absensi_alma/domain/usecases/login_user.dart';
 import 'package:absensi_alma/domain/usecases/logout_user.dart';
@@ -13,6 +17,7 @@ import 'package:absensi_alma/domain/usecases/submit_permit.dart';
 import 'package:absensi_alma/presentation/approval/bloc/approval_bloc.dart';
 import 'package:absensi_alma/presentation/auth/bloc/auth_bloc.dart';
 import 'package:absensi_alma/presentation/izin/bloc/permit_bloc.dart';
+import 'package:absensi_alma/presentation/payments/bloc/payslip_bloc.dart';
 import 'package:absensi_alma/presentation/splash/bloc/splash_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -30,12 +35,15 @@ Future<void> init() async {
   sl.registerFactory(
       () => ApprovalBloc(getPermitHistory: sl(), authBloc: sl()));
 
+  sl.registerFactory(() => PayslipBloc(getLatestPayslip: sl()));
+
   //use Cases
   sl.registerLazySingleton(() => GetCurrentUser(sl()));
   sl.registerLazySingleton(() => LoginUser(sl()));
   sl.registerLazySingleton(() => LogoutUser(sl()));
   sl.registerLazySingleton(() => SubmitPermit(sl()));
   sl.registerLazySingleton(() => GetPermitHistory(sl()));
+  sl.registerLazySingleton(() => GetLatestPayslip(sl()));
 
   //repository
   sl.registerLazySingleton<AuthRepository>(
@@ -51,6 +59,9 @@ Future<void> init() async {
 
   sl.registerFactory(() => SplashCubit(getCurrentUser: sl()));
 
+  sl.registerLazySingleton<PayslipRepository>(() =>
+      PayslipRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
+
   //Data Source
   sl.registerLazySingleton<PermitRemoteDataSource>(
       () => PermitRemoteDataSourceImpl(client: sl()));
@@ -61,6 +72,8 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sharedPreferences: sl()),
   );
+  sl.registerLazySingleton<PayslipRemoteDataSource>(
+      () => PayslipRemoteDataSourceImpl(client: sl()));
 
   //external
   sl.registerLazySingleton(() => http.Client());

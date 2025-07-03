@@ -3,6 +3,7 @@ import 'package:absensi_alma/core/config/theme/app_colors.dart';
 import 'package:absensi_alma/domain/entities/user_entity.dart';
 import 'package:absensi_alma/domain/usecases/submit_permit.dart';
 import 'package:absensi_alma/injection_container.dart';
+import 'package:absensi_alma/presentation/approval/bloc/approval_bloc.dart';
 import 'package:absensi_alma/presentation/izin/bloc/permit_bloc.dart';
 import 'package:absensi_alma/presentation/notifications/pages/notif_page.dart';
 import 'package:absensi_alma/presentation/payments/pages/payments_page.dart';
@@ -406,10 +407,78 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                _buildActionButton('Approval', Icons.check_circle, screenSize,
-                    ApprovalPages(), context),
-                _buildActionButton('Gaji', Icons.attach_money, screenSize,
-                    PaymentsPage(), context),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: Card.outlined(
+                    color: Colors.white,
+                    shadowColor: Colors.black,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (pageContext) => BlocProvider(
+                              create: (_) => ApprovalBloc(
+                                  authBloc: context.read<AuthBloc>(),
+                                  getPermitHistory: sl()),
+                              // Navigasi ke IzinPage
+                              child: ApprovalPages(),
+                            ),
+                          ),
+                        );
+                      },
+                      splashColor: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle,
+                                size: 38, color: Colors.lightBlue),
+                            Text('Approval',
+                                style: TextStyle(
+                                    fontSize: screenSize.width * 0.040,
+                                    color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: Card.outlined(
+                    color: Colors.white,
+                    shadowColor: Colors.black,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (pageContext) => Builder(
+                                  builder: (_) => PaymentsPage(user: user))),
+                        );
+                      },
+                      splashColor: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.attach_money,
+                                size: 38, color: Colors.lightBlue),
+                            Text('Gaji',
+                                style: TextStyle(
+                                    fontSize: screenSize.width * 0.040,
+                                    color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 _buildActionButton('Riwayat', Icons.note_alt, screenSize,
                     HistoryPage(), context),
                 _buildActionButton('Notifikasi', Icons.notifications,
