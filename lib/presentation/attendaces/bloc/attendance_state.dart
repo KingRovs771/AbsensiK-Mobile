@@ -1,72 +1,49 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+part of 'attendance_bloc.dart';
 
-abstract class AttendanceState {}
+abstract class AttendanceState extends Equatable {
+  const AttendanceState();
+  @override
+  List<Object> get props => [];
+}
 
 class AttendanceInitial extends AttendanceState {}
 
 class AttendanceLoading extends AttendanceState {}
 
 class AttendanceReady extends AttendanceState {
-  // Semua data yang dibutuhkan UI ada di sini
-  final LatLng officeLocation;
-  final double officeRadius;
-  final LatLng userLocation;
-  final double gpsAccuracy;
-  final bool isInRadius;
-  final String todayDate;
+  final AttendanceDataEntity data;
   final String serverTime;
-  final String workSchedule;
-  final String? clockInTime;
-  final String? clockOutTime;
-  final String lateDuration;
-  final String earlyLeaveDuration;
-  final bool canClockIn;
-  final bool canClockOut;
 
-  AttendanceReady({
-    required this.officeRadius,
-    required this.userLocation,
-    required this.gpsAccuracy,
-    required this.isInRadius,
-    required this.todayDate,
-    required this.serverTime,
-    required this.workSchedule,
-    required this.clockInTime,
-    required this.clockOutTime,
-    required this.lateDuration,
-    required this.earlyLeaveDuration,
-    required this.canClockIn,
-    required this.canClockOut,
-    required this.officeLocation,
-  });
+  const AttendanceReady({required this.data, required this.serverTime});
+
+  AttendanceReady copyWith({
+    AttendanceDataEntity? data,
+    String? serverTime,
+  }) {
+    return AttendanceReady(
+      data: data ?? this.data,
+      serverTime: serverTime ?? this.serverTime,
+    );
+  }
+
+  @override
+  List<Object> get props => [data, serverTime];
 }
 
 class AttendanceSubmitting extends AttendanceReady {
-  // Mewarisi semua properti dari AttendanceReady agar UI tidak error
-  AttendanceSubmitting({
-    required super.officeLocation,
-    required super.officeRadius,
-    required super.userLocation,
-    required super.gpsAccuracy,
-    required super.isInRadius,
-    required super.todayDate,
-    required super.serverTime,
-    required super.workSchedule,
-    required super.clockInTime,
-    required super.clockOutTime,
-    required super.lateDuration,
-    required super.earlyLeaveDuration,
-    required super.canClockIn,
-    required super.canClockOut,
-  });
+  const AttendanceSubmitting({required super.data, required super.serverTime});
 }
 
 class AttendanceSuccess extends AttendanceState {
   final String message;
-  AttendanceSuccess({required this.message});
+  const AttendanceSuccess({required this.message});
+  @override
+  List<Object> get props => [message];
 }
 
 class AttendanceFailure extends AttendanceState {
   final String message;
-  AttendanceFailure({required this.message});
+  const AttendanceFailure({required this.message});
+  @override
+  List<Object> get props => [message];
 }

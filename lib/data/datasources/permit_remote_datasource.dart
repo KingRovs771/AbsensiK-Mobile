@@ -67,15 +67,20 @@ class PermitRemoteDataSourceImpl implements PermitRemoteDataSource {
 
   @override
   Future<List<PermitModel>> getPermitHistory(String token) async {
+    // PERBAIKAN: Endpoint ini sekarang menggunakan token di header, bukan query param
     final url = Uri.parse('$_baseUrl/v1/izin/getIzinByuserUID');
-    final response =
-        await client.get(url, headers: {'Authorization': 'Bearer $token'});
+    final response = await client.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body)['data'];
       return jsonList.map((json) => PermitModel.fromJson(json)).toList();
     } else {
-      throw ServerException(message: 'Gagal memuat riwayat pengajuan');
+      final responseMap = json.decode(response.body);
+      throw ServerException(
+          message: responseMap['message'] ?? 'Gagal memuat riwayat pengajuan');
     }
   }
 }

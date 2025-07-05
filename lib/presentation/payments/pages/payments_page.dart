@@ -1,3 +1,4 @@
+import 'package:absensi_alma/core/config/theme/app_colors.dart';
 import 'package:absensi_alma/domain/entities/payslip_entity.dart';
 import 'package:absensi_alma/domain/entities/user_entity.dart';
 import 'package:absensi_alma/injection_container.dart';
@@ -78,7 +79,8 @@ class _PaymentsView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+          color: AppColors.secondaryColor,
+          borderRadius: BorderRadius.circular(8)),
       child: Column(
         children: [
           Row(
@@ -88,7 +90,9 @@ class _PaymentsView extends StatelessWidget {
               Text('DEVISI : ${user.role.nameRole.toUpperCase()}'),
             ],
           ),
-          const Divider(),
+          const Divider(
+            color: AppColors.fontColor,
+          ),
           Row(
             children: [
               Text('NAMA : ${user.fullName}'),

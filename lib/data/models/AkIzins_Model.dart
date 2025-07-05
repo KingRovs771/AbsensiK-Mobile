@@ -19,7 +19,7 @@ class PermitModel extends PermitEntity {
       endDate: json['end_date'] ?? '',
       permitType: json['izin_type'] ?? '',
       reason: json['alasan'] ?? '',
-      status: json['status'] ?? 'Unknown',
+      status: json['status']?.toString() ?? '0',
     );
   }
 }

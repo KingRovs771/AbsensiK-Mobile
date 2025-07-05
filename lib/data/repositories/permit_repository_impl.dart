@@ -39,15 +39,14 @@ class PermitRepositoryImpl implements PermitRepository {
   @override
   Future<Either<Failure, List<PermitEntity>>> getPermitHistory() async {
     try {
-      // Ambil token dari penyimpanan lokal
+      // Logika utama ada di sini: ambil token, lalu panggil data source
       final token = await localDataSource.getToken();
       final result = await remoteDataSource.getPermitHistory(token);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } on CacheException {
-      return Left(
-          CacheFailure(message: "Sesi tidak valid, silakan login ulang"));
+      return Left(CacheFailure(message: "Sesi tidak valid"));
     }
   }
 }

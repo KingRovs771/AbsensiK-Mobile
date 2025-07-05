@@ -417,12 +417,8 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (pageContext) => BlocProvider(
-                              create: (_) => ApprovalBloc(
-                                  authBloc: context.read<AuthBloc>(),
-                                  getPermitHistory: sl()),
-                              // Navigasi ke IzinPage
-                              child: ApprovalPages(),
+                            builder: (pageContext) => Builder(
+                              builder: (_) => ApprovalPages(user: user),
                             ),
                           ),
                         );
@@ -456,8 +452,10 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (pageContext) => Builder(
-                                  builder: (_) => PaymentsPage(user: user))),
+                            builder: (pageContext) => Builder(
+                              builder: (_) => PaymentsPage(user: user),
+                            ),
+                          ),
                         );
                       },
                       splashColor: AppColors.primaryColor,
