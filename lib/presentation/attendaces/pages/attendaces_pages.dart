@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:absensi_alma/common/helper/bottomNavigation/bottom_bar.dart';
 import 'package:absensi_alma/domain/entities/user_entity.dart';
 import 'package:absensi_alma/injection_container.dart';
 import 'package:absensi_alma/presentation/attendaces/bloc/attendance_bloc.dart';
+import 'package:absensi_alma/presentation/home/pages/home_page.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class AttendancePage extends StatelessWidget {
   final UserEntity user;
@@ -15,7 +18,7 @@ class AttendancePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Menyediakan BLoC dan langsung mengambil data awal saat halaman dibuka
+    initializeDateFormatting('id_ID', null);
     return BlocProvider(
       create: (context) => sl<AttendanceBloc>()..add(FetchAttendanceData()),
       child: _AttendanceView(user: user),
@@ -32,7 +35,6 @@ class _AttendanceView extends StatefulWidget {
 }
 
 class _AttendanceViewState extends State<_AttendanceView> {
-  // Controllers untuk kamera dan peta
   CameraController? _cameraController;
   final Completer<GoogleMapController> _mapController = Completer();
   List<CameraDescription>? _cameras;
@@ -45,7 +47,6 @@ class _AttendanceViewState extends State<_AttendanceView> {
   }
 
   Future<void> _initializeCameraAndTimer() async {
-    // Inisialisasi Kamera depan
     try {
       _cameras = await availableCameras();
       final frontCamera = _cameras?.firstWhere(
@@ -59,13 +60,11 @@ class _AttendanceViewState extends State<_AttendanceView> {
         await _cameraController!.initialize();
       }
     } catch (e) {
-      // Handle error jika kamera gagal diinisialisasi
+      print("Error initializing camera: $e");
     }
 
-    // Timer untuk update waktu server di UI setiap detik
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
-        // Mengirim event ke BLoC untuk memperbarui waktu
         context.read<AttendanceBloc>().add(UpdateServerTime());
       }
     });
@@ -80,7 +79,6 @@ class _AttendanceViewState extends State<_AttendanceView> {
     super.dispose();
   }
 
-  // Fungsi yang dipanggil saat tombol "MASUK" ditekan
   void _onClockInPressed() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       ScaffoldMessenger.of(context)
@@ -91,7 +89,6 @@ class _AttendanceViewState extends State<_AttendanceView> {
 
     try {
       final image = await _cameraController!.takePicture();
-      // Mengirim event ke BLoC dengan membawa data foto
       context.read<AttendanceBloc>().add(ClockInButtonPressed(photo: image));
     } catch (e) {
       ScaffoldMessenger.of(context)
@@ -99,10 +96,8 @@ class _AttendanceViewState extends State<_AttendanceView> {
     }
   }
 
-  // Fungsi yang dipanggil saat tombol "PULANG" ditekan
   void _onClockOutPressed() {
     if (context.read<AttendanceBloc>().state is AttendanceSubmitting) return;
-    // Mengirim event ke BLoC
     context.read<AttendanceBloc>().add(ClockOutButtonPressed());
   }
 
@@ -110,23 +105,22 @@ class _AttendanceViewState extends State<_AttendanceView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<AttendanceBloc, AttendanceState>(
-        // Listener untuk menampilkan feedback seperti Snackbar
         listener: (context, state) {
           if (state is AttendanceSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(state.message), backgroundColor: Colors.green));
+            // Refresh data setelah sukses
+            context.read<AttendanceBloc>().add(FetchAttendanceData());
           } else if (state is AttendanceFailure) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(state.message), backgroundColor: Colors.red));
           }
         },
-        // Builder untuk membangun UI berdasarkan state
         builder: (context, state) {
           if (state is AttendanceLoading || state is AttendanceInitial) {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is AttendanceReady) {
-            // Jika data siap, bangun UI utama
             return _buildReadyStateUI(state);
           }
           if (state is AttendanceFailure) {
@@ -148,13 +142,11 @@ class _AttendanceViewState extends State<_AttendanceView> {
     );
   }
 
-  // Widget untuk membangun UI utama saat state adalah AttendanceReady
   Widget _buildReadyStateUI(AttendanceReady state) {
     final bool isSubmitting = state is AttendanceSubmitting;
 
     return Stack(
       children: [
-        // Bagian Peta
         GoogleMap(
           mapType: MapType.normal,
           initialCameraPosition:
@@ -183,7 +175,6 @@ class _AttendanceViewState extends State<_AttendanceView> {
                 strokeWidth: 1),
           },
         ),
-        // Pratinjau Kamera
         Positioned(
             top: 40,
             right: 16,
@@ -198,18 +189,29 @@ class _AttendanceViewState extends State<_AttendanceView> {
                     child: (_cameraController != null &&
                             _cameraController!.value.isInitialized)
                         ? CameraPreview(_cameraController!)
-                        : const Center(child: CircularProgressIndicator())))),
-        // Tombol Kembali
+                        : Container(
+                            color: Colors.black,
+                            child: const Center(
+                                child: Text('Kamera Error',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10))))))),
         Positioned(
-            top: 40,
-            left: 16,
-            child: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.of(context).pop()))),
-
-        // Kartu Informasi yang bisa di-scroll
+          top: 40,
+          left: 16,
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                    builder: (context) => BottomBar(
+                          user: widget.user,
+                        )),
+              ),
+            ),
+          ),
+        ),
         DraggableScrollableSheet(
           initialChildSize: 0.45,
           minChildSize: 0.45,
@@ -224,7 +226,6 @@ class _AttendanceViewState extends State<_AttendanceView> {
                 controller: scrollController,
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  // Data pengguna dan absensi diambil dari 'state.data'
                   Text(widget.user.fullName.toUpperCase(),
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 18)),
@@ -256,8 +257,6 @@ class _AttendanceViewState extends State<_AttendanceView> {
                         state.data.earlyLeaveDuration)
                   ],
                   const SizedBox(height: 20),
-
-                  // Tombol Aksi
                   Row(
                     children: [
                       Expanded(
@@ -285,7 +284,7 @@ class _AttendanceViewState extends State<_AttendanceView> {
                                       const EdgeInsets.symmetric(vertical: 12)),
                               onPressed:
                                   (state.data.canClockOut && !isSubmitting)
-                                      ? () => ClockOutButtonPressed()
+                                      ? _onClockOutPressed
                                       : null)),
                     ],
                   )
@@ -298,39 +297,27 @@ class _AttendanceViewState extends State<_AttendanceView> {
     );
   }
 
-  // Helper widget untuk baris info
   Widget _buildInfoRow(String label, String value, {Color? color}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(label, style: const TextStyle(color: Colors.grey)),
           Text(value,
-              style: TextStyle(fontWeight: FontWeight.bold, color: color)),
-        ],
-      ),
-    );
+              style: TextStyle(fontWeight: FontWeight.bold, color: color))
+        ]));
   }
 
-  // Helper widget untuk detail absensi (masuk/pulang)
   Widget _buildAttendanceDetail(
       String title, String time, String durationLabel, String duration) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(color: Colors.grey)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(time,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Text('$durationLabel: $duration',
-                style: const TextStyle(color: Colors.red)),
-          ],
-        )
-      ],
-    );
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(title, style: const TextStyle(color: Colors.grey)),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(time,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        Text('$durationLabel: $duration',
+            style: const TextStyle(color: Colors.red))
+      ])
+    ]);
   }
 }

@@ -34,7 +34,7 @@ class AttendanceDataModel extends AttendanceDataEntity {
       earlyLeaveDuration: json['early_leave_duration'] ?? '0 menit',
       canClockIn: json['can_clock_in'] ?? false,
       canClockOut: json['can_clock_out'] ?? false,
-      isInRadius: false, // Nilai awal, akan di-update oleh repository
+      isInRadius: false,
     );
   }
 }

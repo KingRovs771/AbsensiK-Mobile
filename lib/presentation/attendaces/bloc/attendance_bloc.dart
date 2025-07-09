@@ -7,7 +7,6 @@ import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-
 part 'attendance_event.dart';
 part 'attendance_state.dart';
 
