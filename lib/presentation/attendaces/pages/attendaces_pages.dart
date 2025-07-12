@@ -96,7 +96,7 @@ class _AttendanceViewState extends State<_AttendanceView> {
     }
   }
 
-  void _onClockOutPressed() {
+  void _onClockOutPressed() async {
     if (context.read<AttendanceBloc>().state is AttendanceSubmitting) return;
     context.read<AttendanceBloc>().add(ClockOutButtonPressed());
   }

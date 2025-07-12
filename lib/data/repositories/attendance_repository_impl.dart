@@ -53,8 +53,6 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
           userPosition.longitude,
           attendanceDataModel.officeLocation.latitude,
           attendanceDataModel.officeLocation.longitude);
-
-      // Gabungkan data dari server dan data dari perangkat
       return Right(AttendanceDataEntity(
         officeLocation: attendanceDataModel.officeLocation,
         officeRadius: attendanceDataModel.officeRadius,
