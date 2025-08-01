@@ -86,8 +86,12 @@ class _PaymentsView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('NIK      : ${user.userUID}'),
-              Text('DEVISI : ${user.role.nameRole.toUpperCase()}'),
+              Text(
+                'NIK      : ${user.userUID}',
+                style: TextStyle(color: Color(0xFFFFFFFF)),
+              ),
+              Text('DEVISI : ${user.role.nameRole.toUpperCase()}',
+                  style: TextStyle(color: Color(0xFFFFFFFF))),
             ],
           ),
           const Divider(
@@ -95,7 +99,8 @@ class _PaymentsView extends StatelessWidget {
           ),
           Row(
             children: [
-              Text('NAMA : ${user.fullName}'),
+              Text('NAMA : ${user.fullName}',
+                  style: TextStyle(color: Color(0xFFFFFFFF))),
             ],
           ),
         ],
@@ -108,7 +113,10 @@ class _PaymentsView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.fontColorBlack)),
         const SizedBox(height: 8),
         ...items
             .map((item) => _buildDetailRow(item.name, item.amount))
@@ -123,8 +131,14 @@ class _PaymentsView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label),
-          Text(_formatCurrency(value)),
+          Text(
+            label,
+            style: TextStyle(color: AppColors.fontColorBlack),
+          ),
+          Text(
+            _formatCurrency(value),
+            style: TextStyle(color: AppColors.fontColorBlack),
+          ),
         ],
       ),
     );
@@ -133,7 +147,9 @@ class _PaymentsView extends StatelessWidget {
   Widget _buildTotalRow(String label, double value,
       {bool isGrandTotal = false}) {
     final style = TextStyle(
-        fontWeight: FontWeight.bold, fontSize: isGrandTotal ? 18 : 16);
+        fontWeight: FontWeight.bold,
+        fontSize: isGrandTotal ? 18 : 16,
+        color: AppColors.fontColorBlack);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
